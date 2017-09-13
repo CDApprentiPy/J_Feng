@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang='en'>
+    <head>
+        <title>Registration Form Assignment</title>
+        <meta charset='utf-8'>
+        <style>
+            body, form {
+                width: 50%;
+                margin: 10px auto;
+                font-family: tahoma, sans-serif;
+            }
+            p {
+                font-weight: bold;
+            }
+            .flash {
+                width: 50%;
+                margin: 0 auto;
+                color: red;
+            }
+            .required {
+                color: red;
+                font-size: 12px;
+            }
+        </style>
+    </head>
+    <body>
+        {% with messages = get_flashed_messages() %}
+            {% if messages %}
+              {% for message in messages %}
+                <p class="flash">{{ message }}</p>
+              {% endfor %}
+            {% endif %}
+        {% endwith %}
+
+        <form action="/process" method="POST">
+            <p>Email: <input type="text" placeholder="Your Email" name="email" value="{{email}}"/></p>
+            
+            <p>First Name: <input type="text" placeholder="First Name" name="fName" value="{{fName}}"/></p>
+            
+            <p>Last Name: <input type="text" placeholder="Last Name" name="lName" value="{{lName}}"/></p>
+            
+            <p>Birthday: <input type="date" placeholder="01-01-1990" name="bday" max="{{maxday}}" value="{{bday}}"/></p>
+            
+            <p>Password: <input type="password" placeholder="Password" name="pword" value="{{pword}}"/></p>
+            
+            <p>Confirm Password: <input type="password" placeholder="Confirm Password" name="confirm" value="{{confirm}}"/></p>
+            
+            <input type="submit" name="submit" value="Submit"/>
+            <p class="required">*All fields are required.</p>
+        </form>
+    </body>
+</html>
