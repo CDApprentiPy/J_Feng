@@ -1,0 +1,46 @@
+body {
+    font-family: tahoma, sans-serif;
+    width: 50%;
+    margin: 0 auto;
+}
+form {
+    border: 1px solid black;
+    padding: 10px;
+    width: 40%;
+    margin: 0 auto;
+}
+h2 {
+    width: 40%;
+    margin: 10px auto;
+}
+.error {
+    text-align: center;
+    color: #F89C9C;
+    font-size: 16px;
+}
+table, th, td {
+    border: 1px solid black;
+}
+.tooltip {
+    position: relative;
+    display: inline-block; 
+}
+
+.tooltip .tooltiptext {
+    visibility: hidden;
+    width: 200px;
+    background-color: black;
+    color: #fff;
+    font-size: 12px;
+    text-align: center;
+    padding: 5px 0;
+    border-radius: 6px;
+    position: absolute;
+    z-index: 1;
+    top: -5px;
+    right: 105%; 
+}
+
+.tooltip:hover .tooltiptext {
+    visibility: visible;
+}

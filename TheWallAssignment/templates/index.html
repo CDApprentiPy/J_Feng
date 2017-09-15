@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang='en'>
+    <head>
+        <title>THE WALL</title>
+        <meta charset='utf-8'>
+        <link rel="stylesheet" type="text/css" href="{{url_for('static', filename='index_style.css')}}"/>
+    </head>
+    <body>
+        {% with messages = get_flashed_messages() %}
+            {% if messages %}
+                {% for message in messages %}
+                    <p class="error">{{message}}</p>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+
+        <form action="/wall">
+        <input type="submit" value="Wall">
+        </form>
+
+        <h2 class="background"><span>REGISTER</span></h2>
+        <form action="/register" method="POST">
+            <p class="tooltip">First Name: <input type="text" placeholder="First Name" name="first_name" value="{{first_name}}"/>
+            <span class="tooltiptext">Name must be more than 2 characters, and can only contain alphabetical letters.</span></p>
+            <p class="tooltip">Last Name: <input type="text" placeholder="Last Name" name="last_name" value="{{last_name}}"/>
+            <span class="tooltiptext">Name must be more than 2 characters, and can only contain alphabetical letters.</span></p>
+            <p>Email: <input type="text" placeholder="Email" name="email" value="{{email}}"/></p>
+            <p class="tooltip">Password: <input type="password" placeholder="Password" name="password"/>
+            <span class="tooltiptext">Password must be more than 8 characters.</span></p>
+            <p class="tooltip">Confirm Password: <input type="password" placeholder="Password" name="confirm_password"/>
+            <span class="tooltiptext">Password must match.</span></p>
+            <input type="submit" value="Register"/>
+        </form>
+
+        <h2>LOGIN</h2>
+        <form action="/login" method="POST">
+            <p>Email: <input type="text" placeholder="Email" name="l_email" value="{{l_email}}"/></p>
+            <p>Password: <input type="password" placeholder="Password" name="l_password"/></p>
+            <input type="submit" value="Login"/>
+        </form>
+    </body>
+</html>
