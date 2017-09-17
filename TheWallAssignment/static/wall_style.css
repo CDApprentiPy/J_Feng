@@ -1,11 +1,15 @@
 body {
     font-family: tahoma, sans-serif;
+    /* background: linear-gradient(#0da2fd, #a1d7f9); */
+    background: linear-gradient(#a1d7f9, #dbd9d9);
+    color: #514e4e;
 }
 
+/* Styles the header */
 #header {
     display: block;
-    border-bottom: 2px solid black;
-    background-color: rgba(0, 0, 0, 0.8);
+    /* border-bottom: 2px solid black; */
+    background-color: rgba(0, 0, 0, 0.65);
     color: white;
     position: fixed;
     top: 0;
@@ -31,43 +35,82 @@ body {
     text-align: right;
 }
 
+/* Styles the database content table */
 #content {
     margin-top: 100px;
 }
 
 .error {
     text-align: center;
-    color: red;
+    color: #F89C9C;
     font-size: 16px;
 }
 
-table {
-    margin: 0 auto;
-}
-
-table, th, td {
-    text-align: center;
-    border: 1px solid black;
-}
-
+/* Styles the content of the wall */
 #wall_content {
-    border: 1px solid black;
+    padding: 5px;
 }
 
-.text_post, .submit_post {
+.text_post, .text_comment, .submit_post, .submit_comment {
     display: block;
     margin-bottom: 10px;
     font-weight: bold;
 }
 
-.submit_post {
-    background-color: blue;
-    color: white;
+.submit_post, .submit_comment {
     margin: 10px auto;
     border-radius: 5px;
 }
 
+/* Styles the user message posts */
 .text_post {
     width: 95%;
     margin: 0 auto;
+}
+
+.user_post {
+    width: 90%;
+    margin: 15px auto;
+    background-color: white;
+    padding: 10px;
+}
+
+.user_post h5 {
+    margin: 5px 0;
+}
+
+.user_post p {
+    /* border-bottom: 1px solid black; */
+    padding: 5px;
+    margin: 5px 0;
+}
+
+.post_links {
+    margin: 5px 0 20px 0;
+    /* text-align: right; */
+    width: 200px;
+}
+
+form.delete_post, .comment {
+    display: inline-block;
+}
+
+/* Styles the user comment posts */
+.user_comment {
+    width: 90%;
+    margin: 0 auto 10px auto;
+}
+
+#post_comments {
+    display: none;
+}
+
+.text_comment {
+    width: 80%;
+    margin: 0 auto;
+    border: 1px solid black;
+}
+
+.delete_comment {
+    /* text-align: right; */
 }

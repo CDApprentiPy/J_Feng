@@ -14,20 +14,15 @@ mysql = MySQLConnector(app, 'thewall_assignment')
 app.secret_key = "secret"
 
 # Can delete once wall is done. Shows all the database.
-def success():
-    flash("SUCCESS!")
-    query = "SELECT * FROM users JOIN messages ON users.id = messages.user_id JOIN comments ON users.id = comments.user_id"
-    users = mysql.query_db(query)
-    return users
+# def success():
+#     flash("SUCCESS!")
+#     query = "SELECT users.id, users.first_name, users.last_name, users.email, users.password, users.salt, users.created_at, messages.message FROM users LEFT JOIN messages ON users.id = messages.user_id LEFT JOIN comments ON users.id = comments.user_id"
+#     users = mysql.query_db(query)
+#     return users
 
 @app.route("/")
 def home():
     return render_template("index.html")
-
-# To delete after assignment is done.
-@app.route("/wall")
-def wall():
-    return render_template("wall.html")
 
 @app.route("/register", methods=["POST"])
 def register():
@@ -100,11 +95,11 @@ def register():
         salt = binascii.b2a_hex(os.urandom(10))
         hashed_pw = md5.new(request.form['password'] + salt).hexdigest()
         # Insert the user inputs into the database as a new user.
-        query = "INSERT INTO users (first_name, last_name, email, password, salt, created_at) VALUES (:first_name, :last_name, :email, :hashed_pw, :salt, NOW())"
+        query = "INSERT INTO users (first_name, last_name, email, password, salt, created_at, updated_at) VALUES (:first_name, :last_name, :email, :hashed_pw, :salt, NOW(), NOW())"
 
         data = {
-            'first_name': request.form['first_name'],
-            'last_name': request.form['last_name'],
+            'first_name': request.form['first_name'].capitalize(),
+            'last_name': request.form['last_name'].capitalize(),
             'email': request.form['email'],
             'hashed_pw': hashed_pw,
             'salt': salt
@@ -116,11 +111,10 @@ def register():
 
 @app.route("/login", methods=["POST"])
 def login():
-    session["l_email"] = request.form["l_email"]
-    session["l_password"] = request.form["l_password"]
+    session["email"] = request.form["l_email"]
 
     # Pulls user's info from the database by comparing the email.
-    query = "SELECT * FROM users WHERE users.email = '{}'".format (session["l_email"])
+    query = "SELECT * FROM users WHERE users.email = '{}'".format (session["email"])
     queries = mysql.query_db(query)
     if queries == []:
         flash("This email is not registered.")
@@ -133,14 +127,8 @@ def login():
                 hashed_pw = queries[q][key]
             if key == "salt":
                 salt = queries[q][key]
-            if key == "first_name":
-                session["first_name"] = queries[q][key]
-            if key == "last_name":
-                session["last_name"] = queries[q][key]
-            if key == "id":
-                session["id"] = queries[q][key]
 
-        unhashed_pw = md5.new(session["l_password"] + salt).hexdigest()
+        unhashed_pw = md5.new(request.form["l_password"] + salt).hexdigest()
 
         if unhashed_pw == hashed_pw:
             return redirect("/logged_in")
@@ -150,32 +138,107 @@ def login():
 
 @app.route("/logged_in")
 def logged_in():
-    users = success()
-    print users
-    for q in range(0, len(users)):
-        print q
-        print users[q]
-
-    return render_template("wall.html", all_users=users, first_name=session["first_name"])
-
-@app.route("/post_message", methods=["POST"])
-def post_message():
-    query = "INSERT INTO messages (message, created_at, updated_at, user_id) VALUES (:message, NOW(), NOW(), :user_id)"
+    query = "SELECT users.id, users.first_name, users.last_name, users.email, users.created_at, messages.message FROM users LEFT JOIN messages ON users.id = messages.user_id LEFT JOIN comments ON users.id = comments.user_id WHERE users.email = :email"
 
     data = {
-        'message': request.form["text_post"],
-        'user_id': session["id"]
+        'email': session["email"]
     }
 
-    post = mysql.query_db(query, data)
+    logged_user = mysql.query_db(query, data)
 
-    for p in range(0, len(post)):
-        print p
+    for user in range(0, len(logged_user)):
+        for key in logged_user[user]:
+            if key == "first_name":
+                session["first_name"] = logged_user[user][key]
+            if key == "last_name":
+                session["last_name"] = logged_user[user][key]
+            if key == "id":
+                session["id"] = logged_user[user][key]
 
-    date_posted = datetime.now()
+    return redirect("/wall")
 
-    render_template("wall.html", all_posts=post, first_name=session["first_name"], last_name=session["last_name"], timestamp=date_posted)
+# Displays the wall.
+@app.route("/wall")
+def wall():
+    query = "SELECT messages.message, messages.created_at AS message_timestamp, users.first_name, users.last_name, messages.id AS message_id, messages.user_id FROM messages LEFT JOIN users ON messages.user_id = users.id ORDER BY messages.created_at DESC"
+    posts = mysql.query_db(query)
 
+    query = "SELECT comments.comment, comments.created_at AS comment_timestamp, users.first_name, users.last_name, comments.id AS comment_id, comments.message_id AS cmt_msg_id, comments.user_id AS user_id FROM comments LEFT JOIN users ON comments.user_id = users.id ORDER BY comments.created_at ASC"
+    comments = mysql.query_db(query)
+
+    return render_template("wall.html", all_posts=posts, all_comments=comments, first_name=session["first_name"], last_name=session["last_name"])
+
+# When message is posted, this will insert the information into the database and save the user's id to the session.
+@app.route("/post_message", methods=["POST"])
+def post_message():
+    text_post = request.form["text_post"]
+
+    if len(text_post) == 0:
+        flash("Please enter a message.")
+        return redirect("/wall")
+    else:
+        query = "INSERT INTO messages (message, created_at, updated_at, user_id) VALUES (:message, NOW(), NOW(), :user_id)"
+
+        data = {
+            'message': request.form["text_post"],
+            'user_id': session["id"]
+        }
+
+        mysql.query_db(query, data)
+
+        return redirect("/wall")
+
+# When user deletes their own message post, it will delete the message and the comments relating to that message from the database.
+@app.route("/delete_post/<message_id>")
+def delete_post(message_id):
+    query = "DELETE FROM comments WHERE comments.message_id = :message_id" 
+    
+    query2 = "DELETE FROM messages WHERE messages.id = :message_id"
+
+    data = {
+        'message_id': message_id
+    }
+
+    mysql.query_db(query, data)
+    mysql.query_db(query2, data)
+
+    return redirect("/wall")
+
+# When comment is posted, this will insert the information into the database and save the user's id to the session.
+@app.route("/post_comment/<message_id>", methods=["POST"])
+def post_comment(message_id):
+    text_comment = request.form["text_comment"]
+
+    if len(text_comment) == 0:
+        flash("Please enter a comment.")
+        return redirect("/wall")
+    else:
+        query = "INSERT INTO comments (comment, created_at, updated_at, message_id, user_id) VALUES (:comment, NOW(), NOW(), :message_id, :user_id)"
+
+        data = {
+            'comment': text_comment,
+            'message_id': message_id,
+            'user_id': session["id"]
+        }
+
+        mysql.query_db(query, data)
+
+        return redirect("/wall")
+
+# When user deletes their own comment, it will delete the information from the database.
+@app.route("/delete_comment/<comment_id>")
+def delete_comment(comment_id):
+    query = "DELETE FROM comments WHERE comments.id = :comment_id" 
+    
+    data = {
+        'comment_id': comment_id
+    }
+
+    mysql.query_db(query, data)
+
+    return redirect("/wall")
+
+# Logs user out, and clears sessions.
 @app.route("/logout")
 def logout():
     flash("You are logged out!")

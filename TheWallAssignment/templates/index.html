@@ -14,10 +14,6 @@
             {% endif %}
         {% endwith %}
 
-        <form action="/wall">
-        <input type="submit" value="Wall">
-        </form>
-
         <h2 class="background"><span>REGISTER</span></h2>
         <form action="/register" method="POST">
             <p class="tooltip">First Name: <input type="text" placeholder="First Name" name="first_name" value="{{first_name}}"/>
@@ -29,14 +25,14 @@
             <span class="tooltiptext">Password must be more than 8 characters.</span></p>
             <p class="tooltip">Confirm Password: <input type="password" placeholder="Password" name="confirm_password"/>
             <span class="tooltiptext">Password must match.</span></p>
-            <input type="submit" value="Register"/>
+            <input type="submit" value="Register" class="submit"/>
         </form>
 
         <h2>LOGIN</h2>
         <form action="/login" method="POST">
             <p>Email: <input type="text" placeholder="Email" name="l_email" value="{{l_email}}"/></p>
             <p>Password: <input type="password" placeholder="Password" name="l_password"/></p>
-            <input type="submit" value="Login"/>
+            <input type="submit" value="Login" class="submit"/>
         </form>
     </body>
 </html>

@@ -4,6 +4,16 @@
         <title>THE WALL</title>
         <meta charset='utf-8'>
         <link rel="stylesheet" type="text/css" href="{{url_for('static', filename='wall_style.css')}}"/>
+        <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+        <script>
+            {% for post in all_posts %}
+                $(document).ready(function() {
+                    $(".post_links .comment_{{post['message_id']}}").click(function() {
+                        $(".post_comments_{{post['message_id']}}").toggle();
+                    });
+                });
+            {% endfor %}
+        </script>
     </head>
     <body>
         <header id="header">
@@ -24,46 +34,59 @@
                     {% endfor %}
                 {% endif %}
             {% endwith %}
-
-            <hr>
-            <table>
-                <tr>
-                    <th>ID</th>
-                    <th>First Name</th>
-                    <th>Last Name</th>
-                    <th>Email</th>
-                    <th>Password</th>
-                    <th>Salt</th>
-                    <th>Created On</th>
-                    <th>Message</th>
-                </tr>
-                {% for user in all_users %}
-                <tr>
-                    <td>{{ user['id'] }}</td>
-                    <td>{{ user['first_name'] }}</td>
-                    <td>{{ user['last_name'] }}</td>
-                    <td>{{ user['email'] }}</td>
-                    <td>{{ user['password'] }}</td>
-                    <td>{{ user['salt'] }}</td>
-                    <td>{{ user['created_at'] }}</td>
-                    <td>{{ user['message'] }}</td>
-                </tr>
-                {% endfor %}
-            </table>
         </div>
-        <hr>
-        <main id="wall_content">
-            <form action="/post_message", method="POST">
-                <p class="post_message">POST A MESSAGE:</p>   
-                <textarea class="text_post" placeholder="Post your message." name="text_post"></textarea>
-                <input type="submit" class="submit_post" value="POST"/>       
-            </form>
 
+        <main id="wall_content">
+            <!-- Post a message. -->
+            <form action="/post_message" method="POST">
+                <h3 class="post_message">POST A MESSAGE:</h3>   
+                <textarea class="text_post" placeholder="Post your message." name="text_post"></textarea>
+                <button type="submit" class="submit_post">POST</button>       
+            </form>
+   
+            <!-- Shows all the message posts by newest post. -->
             {% for post in all_posts %}
-            <div class="user_post">
-                <h3>{{ first_name }} {{ last_name }} {{ timestamp }}</h3>
-                <p>{{ post }}</p>
-            </div>
+            <article class="user_post">
+                <h5>{{ post["first_name"] }} {{ post["last_name"] }} {{ post['message_timestamp'] }}</h5>
+                
+                <p>{{ post['message'] }}</p>
+
+                <!-- Only shows "delete" if the post is the logged user's post. -->
+                <div class="post_links">
+                    {% if post["user_id"] == session["id"] %}
+                    <form action="/delete_post/{{post['message_id']}}" class="delete_post">
+                        <button type="submit" class="delete_post">Delete Message</button>
+                    </form>
+                    {% endif %}
+                        <button type="button" class="comment_{{post['message_id']}}">Comment</button>
+                </div>
+
+
+                <!-- Shows all the comment posts under a message post by oldest comment. -->
+                {% for comment in all_comments %}
+                    {% if comment["cmt_msg_id"] == post["message_id"] %}
+                    <article class="user_comment">
+                        <h5>{{ comment["first_name"] }} {{ comment["last_name"] }} {{ comment['comment_timestamp'] }}</h5>
+                        <p>{{ comment['comment'] }}</p>
+        
+                        <!-- Only shows "delete" if the comment is the logged user's comment. -->
+                        {% if comment["user_id"] == session["id"] %}
+                        <form action="/delete_comment/{{comment['comment_id']}}" class="delete_comment">
+                            <button type="submit" class="delete_comment">Delete Comment</button>
+                        </form>
+                        {% endif %}
+                    </article>
+                    {% endif %}
+                {% endfor %}
+
+                <!-- Post a comment. -->
+                <div id="post_comments" class="post_comments_{{post['message_id']}}">
+                    <form action="/post_comment/{{post['message_id']}}" method="POST">
+                        <textarea class="text_comment" placeholder="Post your comment." name="text_comment"></textarea>
+                        <button type="submit" class="submit_comment">COMMENT</button>
+                    </form>
+                </div>
+            </article>
             {% endfor %}
         </main>
     </body>
