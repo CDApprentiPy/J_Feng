@@ -1,0 +1,33 @@
+body {
+    width: 80%;
+    margin: 10px auto;
+}
+
+.error_messages {
+    margin: 20px;
+    color: red;
+}
+
+.title {
+    text-align: center;
+    color: #4E4E4E;
+}
+
+form {
+    border: 2px solid #4E4E4E;
+    width: 95%;
+    margin: 0 auto;
+    padding: 30px;
+}
+
+button.btn, .btn-primary {
+    width: 40%;
+    margin: 0 auto;
+    display: block;
+}
+
+.register, .login {
+    display: inline-block;
+    vertical-align: top;
+    margin: 10px 0;
+}

@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang='en'>
+    <head>
+        <title>Login &amp; Registration</title>
+        <meta charset='utf-8'>
+        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+        {% load static %}
+        <link rel="stylesheet" href="{% static 'login_reg/success_style.css' %}" media="screen" title="no title"  charset="utf-8">
+    </head>
+    <body>
+        <div class="content">
+            <h1>Welcome, {{ user.first_name }} {{ user.last_name }}!</h1>
+                {% if session_type == "registration" %}
+                <p class="success">Successfully registered!</p>
+                {% endif %}
+                {% if session_type == "login" %}
+                <p class="success">Successfully logged in!</p>
+                {% endif %}
+        </div>
+        <a href="{% url 'logreg:logreg_logout' %}">LOGOUT</a>
+    </body>
+</html>
